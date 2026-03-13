@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Gloria UWASE | Portfolio</title>
+    <meta name="description" content="View messages from your portfolio contact form.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/messages.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Skip to Content Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">GW</a>
+            <ul class="nav-links" role="navigation" aria-label="Main navigation">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="skills.html">Skills</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <button class="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Messages Section -->
+    <section class="messages-section" id="main-content">
+        <div class="container">
+            <div class="messages-header">
+                <h1><i class="fas fa-envelope-open-text"></i> Contact Messages</h1>
+                <p>View messages submitted through the contact form</p>
+            </div>
+
+            <div class="messages-stats">
+                <div class="stat-box">
+                    <i class="fas fa-inbox"></i>
+                    <div class="stat-info">
+                        <h3 id="totalMessages">0</h3>
+                        <p>Total Messages</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="stat-info">
+                        <h3 id="readMessages">0</h3>
+                        <p>Read</p>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-info">
+                        <h3 id="newMessages">0</h3>
+                        <p>New</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="loading-messages">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading messages...</p>
+                </div>
+            </div>
+
+            <!-- No Messages State -->
+            <div class="no-messages" id="noMessages" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <h3>No Messages Yet</h3>
+                <p>Messages submitted through the contact form will appear here.</p>
+                <a href="index.html#contact" class="btn btn-primary">Go to Contact Form</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Message Detail Modal -->
+    <div class="modal" id="messageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalSubject">Message Subject</h2>
+                <button class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="message-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-user"></i>
+                        <span id="modalName">Sender Name</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-envelope"></i>
+                        <span id="modalEmail">sender@email.com</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="modalDate">Date</span>
+                    </div>
+                </div>
+                <div class="message-body" id="modalBody">
+                    Message content will appear here...
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="replyBtn">
+                    <i class="fas fa-reply"></i> Reply
+                </button>
+                <button class="btn btn-danger" id="deleteBtn">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Gloria UWASE</h3>
+                    <p>Full Stack Developer & CEO</p>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html#home">Home</a>
+                    <a href="index.html#profile">Profile</a>
+                    <a href="about.html">About</a>
+                    <a href="skills.html">Skills</a>
+                    <a href="projects.html">Projects</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://linkedin.com/in/gloria-uwase" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Gloria UWASE. All rights reserved.</p>
+                <p>Designed & Built with <i class="fas fa-heart"></i> by Gloria UWASE</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/messages.js"></script>
+</body>
+</html>
