@@ -1,8 +1,9 @@
-// DOM Elements
+// DOM Elements (guarded - pages may not include all of these)
 const navbar = document.querySelector('.navbar');
 const navLinks = document.querySelector('.nav-links');
 const hamburger = document.querySelector('.hamburger');
 const contactForm = document.getElementById('contactForm');
+
 
 // ============================================
 // PARTICLE BACKGROUND EFFECT
@@ -98,6 +99,9 @@ const createParticles = () => {
 // CUSTOM CURSOR EFFECT
 // ============================================
 const createCustomCursor = () => {
+    // Only create cursor on desktop devices
+    if (window.innerWidth < 768) return;
+    
     const cursor = document.createElement('div');
     cursor.className = 'custom-cursor';
     cursor.style.cssText = `
@@ -109,7 +113,8 @@ const createCustomCursor = () => {
         pointer-events: none;
         z-index: 9999;
         transition: transform 0.1s ease, opacity 0.3s ease;
-        mix-blend-mode: difference;
+        mix-blend-mode: normal;
+        box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
     `;
     document.body.appendChild(cursor);
     
@@ -123,6 +128,7 @@ const createCustomCursor = () => {
         border-radius: 50%;
         pointer-events: none;
         z-index: 9999;
+        box-shadow: 0 0 5px rgba(249, 115, 22, 0.8);
     `;
     document.body.appendChild(cursorDot);
     
@@ -130,9 +136,27 @@ const createCustomCursor = () => {
     let cursorX = 0, cursorY = 0;
     let dotX = 0, dotY = 0;
     
+    // Initialize cursor position
+    mouseX = -100;
+    mouseY = -100;
+    cursorX = -100;
+    cursorY = -100;
+    
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
+    });
+    
+    // Show cursor when mouse enters window
+    document.addEventListener('mouseenter', () => {
+        cursor.style.opacity = '1';
+        cursorDot.style.opacity = '1';
+    });
+    
+    // Hide cursor when mouse leaves window
+    document.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+        cursorDot.style.opacity = '0';
     });
     
     const animateCursor = () => {
@@ -156,18 +180,29 @@ const createCustomCursor = () => {
     
     // Add hover effect on interactive elements
     const addCursorHover = () => {
-        const interactiveElements = document.querySelectorAll('a, button, .project-card, .service-card, .why-card, input, textarea');
+        const interactiveElements = document.querySelectorAll('a, button, .project-card, .service-card, .why-card, input, textarea, .btn, .skill-card, .innovation-card, .testimonial-card');
         interactiveElements.forEach(el => {
+            el.style.cursor = 'none';
             el.addEventListener('mouseenter', () => {
                 cursor.style.transform = 'scale(2)';
-                cursor.style.borderColor = '#f97316';
+                cursor.style.borderColor = '#ff6600';
+                cursor.style.boxShadow = '0 0 20px rgba(249, 115, 22, 0.8)';
             });
             el.addEventListener('mouseleave', () => {
                 cursor.style.transform = 'scale(1)';
+                cursor.style.borderColor = '#f97316';
+                cursor.style.boxShadow = '0 0 10px rgba(249, 115, 22, 0.5)';
             });
         });
     };
-    addCursorHover();
+    
+    // Run after a short delay to ensure DOM is ready
+    setTimeout(addCursorHover, 500);
+    
+    // Also run when DOM content is loaded
+    if (document.readyState === 'complete') {
+        addCursorHover();
+    }
 };
 
 // ============================================
@@ -406,30 +441,35 @@ const createScrollProgress = () => {
 // ============================================
 
 // Sticky Navigation
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 100) {
-        navbar.style.padding = '0.5rem 0';
-        navbar.style.background = 'rgba(21, 21, 21, 0.95)';
-    } else {
-        navbar.style.padding = '1rem 0';
-        navbar.style.background = 'rgba(21, 21, 21, 0.85)';
-    }
-});
+if (navbar) {
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+            navbar.style.padding = '0.5rem 0';
+            navbar.style.background = 'rgba(21, 21, 21, 0.95)';
+        } else {
+            navbar.style.padding = '1rem 0';
+            navbar.style.background = 'rgba(21, 21, 21, 0.85)';
+        }
+    });
+}
 
 // Mobile Menu Toggle
-hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-    
-    // Animate hamburger
-    const spans = hamburger.querySelectorAll('span');
-    spans[0].style.transform = navLinks.classList.contains('active') 
-        ? 'rotate(45deg) translate(5px, 5px)' 
-        : '';
-    spans[1].style.opacity = navLinks.classList.contains('active') ? '0' : '1';
-    spans[2].style.transform = navLinks.classList.contains('active') 
-        ? 'rotate(-45deg) translate(7px, -6px)' 
-        : '';
-});
+if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        
+        // Animate hamburger
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = navLinks.classList.contains('active') 
+            ? 'rotate(45deg) translate(5px, 5px)' 
+            : '';
+        spans[1].style.opacity = navLinks.classList.contains('active') ? '0' : '1';
+        spans[2].style.transform = navLinks.classList.contains('active') 
+            ? 'rotate(-45deg) translate(7px, -6px)' 
+            : '';
+    });
+}
+
 
 // Close mobile menu when clicking a link
 document.querySelectorAll('.nav-links a').forEach(link => {
@@ -481,48 +521,51 @@ window.addEventListener('scroll', () => {
 // ============================================
 // FORM SUBMISSION
 // ============================================
-contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Get form data
-    const formData = new FormData(contactForm);
-    const data = Object.fromEntries(formData.entries());
-    
-    // Basic validation
-    if (!data.name || !data.email || !data.subject || !data.message) {
-        showNotification('Please fill in all fields', 'error');
-        return;
-    }
-    
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-        showNotification('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    // Save message to localStorage
-    const messages = JSON.parse(localStorage.getItem('portfolioMessages') || '[]');
-    messages.push({
-        id: Date.now(),
-        name: data.name,
-        email: data.email,
-        subject: data.subject,
-        message: data.message,
-        date: new Date().toISOString(),
-        read: false,
-        starred: false
+if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(contactForm);
+        const data = Object.fromEntries(formData.entries());
+
+        // Basic validation
+        if (!data.name || !data.email || !data.subject || !data.message) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(data.email)) {
+            showNotification('Please enter a valid email address', 'error');
+            return;
+        }
+        
+        // Save message to localStorage
+        const messages = JSON.parse(localStorage.getItem('portfolioMessages') || '[]');
+        messages.push({
+            id: Date.now(),
+            name: data.name,
+            email: data.email,
+            subject: data.subject,
+            message: data.message,
+            date: new Date().toISOString(),
+            read: false,
+            starred: false
+        });
+        localStorage.setItem('portfolioMessages', JSON.stringify(messages));
+        
+        // Simulate form submission (replace with actual API call)
+        console.log('Form submitted:', data);
+        showNotification('Thank you! Your message has been sent successfully.', 'success');
+        contactForm.reset();
     });
-    localStorage.setItem('portfolioMessages', JSON.stringify(messages));
-    
-    // Simulate form submission (replace with actual API call)
-    console.log('Form submitted:', data);
-    showNotification('Thank you! Your message has been sent successfully.', 'success');
-    contactForm.reset();
-});
+}
 
 // Custom notification function
 function showNotification(message, type = 'info') {
+
     // Remove existing notification if any
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
