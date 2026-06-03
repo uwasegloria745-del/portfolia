@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Gloria UWASE | Portfolio</title>
+    <meta name="description" content="Admin dashboard to manage contact messages.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admindashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">GW</a>
+            <ul class="nav-links" role="navigation" aria-label="Main navigation">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="skills.html">Skills</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="messages.html">Messages</a></li>
+                <li><a href="admindashboard.html" class="active">Admin</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <button class="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <section class="admin-hero" id="main-content">
+        <div class="container">
+            <div class="admin-hero-top">
+                <div>
+                    <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
+                    <p class="subtitle">Manage contact messages stored in your browser (localStorage).</p>
+                </div>
+                <div class="admin-hint">
+                    <i class="fas fa-lock"></i>
+                    <span>Authentication + authorization (front-end demo only).</span>
+                </div>
+            </div>
+
+            <div class="admin-login" id="adminLoginCard" style="display:none;">
+                <div class="admin-login-inner">
+                    <h2><i class="fas fa-user-lock"></i> Admin Login</h2>
+                    <p class="subtitle">Enter your admin credentials to manage messages.</p>
+
+                    <form id="adminLoginForm" class="admin-login-form">
+                        <div class="filter-group" style="margin: 0;">
+                            <label for="adminUsername">Username</label>
+                            <input id="adminUsername" name="username" type="text" placeholder="admin" required>
+                        </div>
+
+                        <div class="filter-group" style="margin: 0; margin-top: 0.9rem;">
+                            <label for="adminPassword">Password</label>
+                            <input id="adminPassword" name="password" type="password" placeholder="admin123" required>
+                        </div>
+
+                        <div class="admin-actions" style="justify-content:flex-start; margin-top: 1rem;">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-right-to-bracket"></i> Login
+                            </button>
+                            <button class="btn btn-secondary" type="button" id="adminLogoutBtn" style="display:none;">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+
+                        <p class="admin-login-note" style="margin-top: 0.9rem;">
+                            Demo credentials: <strong>admin</strong> / <strong>admin123</strong>
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+                    <div>
+                        <h3 id="totalMessages">0</h3>
+                        <p>Total Messages</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <h3 id="readMessages">0</h3>
+                        <p>Read</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h3 id="newMessages">0</h3>
+                        <p>Unread</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                    <div>
+                        <h3 id="starredMessages">0</h3>
+                        <p>Starred</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-controls">
+                <div class="filter-group">
+                    <label for="adminFilter">Filter</label>
+                    <select id="adminFilter">
+                        <option value="all">All</option>
+                        <option value="unread">Unread</option>
+                        <option value="read">Read</option>
+                        <option value="starred">Starred</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="adminSearch">Search</label>
+                    <input id="adminSearch" type="text" placeholder="Name, email, subject...">
+                </div>
+
+                <div class="admin-actions">
+                    <button class="btn btn-secondary" id="markAllReadBtn" type="button">
+                        <i class="fas fa-check-double"></i> Mark all as read
+                    </button>
+                    <button class="btn btn-danger" id="clearAllBtn" type="button">
+                        <i class="fas fa-trash"></i> Clear all
+                    </button>
+                </div>
+            </div>
+
+            <div class="admin-list" id="messagesContainer">
+                <div class="loading-state" id="loadingState">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading messages...</p>
+                </div>
+
+                <div class="empty-state" id="noMessages" style="display:none;">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No messages yet</h3>
+                    <p>Submit the contact form from the main page to create messages.</p>
+                    <a href="index.html#contact" class="btn btn-primary">Go to Contact Form</a>
+                </div>
+
+                <div class="message-table" id="messageTable" style="display:none;">
+                    <div class="message-table-header">
+                        <span>From</span>
+                        <span>Subject</span>
+                        <span>Date</span>
+                        <span>Status</span>
+                        <span>Actions</span>
+                    </div>
+                    <div class="message-table-body" id="messageRows"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Gloria UWASE</h3>
+                    <p>Admin Tools</p>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html#home">Home</a>
+                    <a href="messages.html">Messages</a>
+                    <a href="admindashboard.html">Admin</a>
+                </div>
+                <div class="footer-social">
+                    <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="https://linkedin.com/in/uwase_gloriaaa" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Gloria UWASE. All rights reserved.</p>
+                <p>Designed & Built with <i class="fas fa-heart"></i> by Gloria UWASE</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/admindashboard.js"></script>
+</body>
+</html>
+
