@@ -174,14 +174,15 @@
 }
 
 .btn-read {
-    background: rgba(249, 115, 22, 0.2);
-    color: #f97316;
+    background: rgba(249, 115, 22, 0.18);
+    color: #fd7a2b;
 }
 
 .btn-read:hover {
-    background: #f97316;
+    background: #fd7a2b;
     color: white;
 }
+
 
 .btn-delete {
     background: rgba(239, 68, 68, 0.2);
