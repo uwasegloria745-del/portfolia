@@ -83,6 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', logoutAdmin);
     }
 
+    // Show/hide login/logout based on auth state
+    const applyAuthUI = () => {
+        const loginCard = document.getElementById('adminLoginCard');
+        const authorizedNow = isAuthorized();
+        if (loginCard) loginCard.style.display = authorizedNow ? 'none' : 'block';
+        if (logoutBtn) logoutBtn.style.display = authorizedNow ? 'inline-flex' : 'none';
+    };
+
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -97,8 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     sessionStorage.setItem(ADMIN_SESSION_KEY, ADMIN_ROLE);
                 } catch {}
 
-                const loginCard = document.getElementById('adminLoginCard');
-                if (loginCard) loginCard.style.display = 'none';
+                applyAuthUI();
 
                 // Continue with dashboard rendering
                 loadAndRender();
@@ -142,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // If not authorized yet, show login and stop.
     const authorized = requireAuthorization();
+    applyAuthUI();
     if (!authorized) return;
 
     // Render dashboard immediately if authorized.

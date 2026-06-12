@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "node node_modules/vite/bin/vite.js",
+    "build": "node node_modules/vite/bin/vite.js build",
+    "preview": "node node_modules/vite/bin/vite.js preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,5 +23,12 @@
   "bugs": {
     "url": "https://github.com/USERNAME/REPO/issues"
   },
-  "homepage": "https://github.com/USERNAME/REPO#readme"
+  "homepage": "https://github.com/USERNAME/REPO#readme",
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.17.0",
+    "vite": "^8.0.16"
+  }
 }

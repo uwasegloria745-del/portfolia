@@ -60,212 +60,74 @@
         </div>
     </section>
 
-    <!-- Projects Grid -->
-    <section class="projects-main">
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
         <div class="container">
+            <h2 class="section-title">Featured Projects</h2>
             <div class="projects-grid">
-                <!-- Project 1 -->
-                <div class="project-card" data-category="webapp">
+                <div class="project-card">
                     <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="E-Commerce Platform Project Preview" loading="lazy">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
+            
                     </div>
                     <div class="project-content">
-                        <span class="project-category">Web App</span>
+                        <h3>Personal Portfolio</h3>
+                        <p>A modern, responsive portfolio website showcasing my skills, projects, and journey as a developer. Features smooth animations and a clean design.</p>
+                        <div class="project-tech">
+                            <span>HTML5</span>
+                            <span>CSS3</span>
+                            <span>JavaScript</span>
+                            <span>React</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" target="_blank"><i class="fab fa-github"></i> Code</a>
+                            <a href="#" target="_blank"><i class="fas fa-external-link-alt"></i> Live</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image">
+                
+                    </div>
+                    <div class="project-content">
                         <h3>E-Commerce Platform</h3>
-                        <p>A full-featured online shopping platform with cart functionality, secure payment integration via Stripe, user authentication, and comprehensive admin dashboard for inventory management.</p>
+                        <p>A full-featured online shopping platform with secure payment integration, user authentication, shopping cart, and admin dashboard.</p>
                         <div class="project-tech">
                             <span>React</span>
                             <span>Node.js</span>
                             <span>MongoDB</span>
                             <span>Stripe</span>
-                            <span>Redux</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" target="_blank"><i class="fab fa-github"></i> Code</a>
+                            <a href="#" target="_blank"><i class="fas fa-external-link-alt"></i> Live</a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Project 2 -->
-                <div class="project-card" data-category="website">
+                <div class="project-card">
                     <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Portfolio Website Preview" loading="lazy">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
+
                     </div>
                     <div class="project-content">
-                        <span class="project-category">Website</span>
-                        <h3>Personal Portfolio</h3>
-                        <p>A modern, responsive portfolio website with smooth animations, dark/light mode toggle, and contact form integration. Showcases projects, skills, and professional journey.</p>
-                        <div class="project-tech">
-                            <span>HTML5</span>
-                            <span>CSS3</span>
-                            <span>JavaScript</span>
-                            <span>React</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="project-card" data-category="webapp">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Task Management App Preview" loading="lazy">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">Web App</span>
                         <h3>Task Management App</h3>
-                        <p>A productivity application for managing tasks, deadlines, and team collaboration. Features real-time updates, drag-and-drop boards, and team assignment capabilities.</p>
+                        <p>A productivity application for managing tasks, deadlines, and team collaboration with real-time updates and notifications.</p>
                         <div class="project-tech">
                             <span>Vue.js</span>
                             <span>Firebase</span>
                             <span>Vuex</span>
-                            <span>Vuetify</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Project 4 -->
-                <div class="project-card" data-category="api">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="RESTful API Service Preview" loading="lazy">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">API</span>
-                        <h3>RESTful API Service</h3>
-                        <p>A scalable RESTful API with authentication using JWT, comprehensive CRUD operations, rate limiting, and detailed Swagger documentation for endpoints.</p>
-                        <div class="project-tech">
-                            <span>Node.js</span>
-                            <span>Express</span>
-                            <span>PostgreSQL</span>
-                            <span>JWT</span>
-                            <span>Swagger</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 5 -->
-                <div class="project-card" data-category="mobile">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Mobile App">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">Mobile</span>
-                        <h3>Fitness Tracking App</h3>
-                        <p>A mobile app for tracking workouts, nutrition, and fitness goals with detailed analytics, progress charts, and social features for motivation.</p>
-                        <div class="project-tech">
-                            <span>React Native</span>
-                            <span>Redux</span>
-                            <span>Firebase</span>
-                            <span>Chart.js</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 6 -->
-                <div class="project-card" data-category="website">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Business Website">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">Website</span>
-                        <h3>Business Landing Page</h3>
-                        <p>A professional landing page for a business with contact forms, lead generation, newsletter signup, and integration with CRM tools.</p>
-                        <div class="project-tech">
-                            <span>HTML5</span>
-                            <span>SCSS</span>
-                            <span>JavaScript</span>
-                            <span>PHP</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 7 -->
-                <div class="project-card" data-category="webapp">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Social Media App">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">Web App</span>
-                        <h3>Social Media Dashboard</h3>
-                        <p>A social media analytics dashboard for tracking engagement, follower growth, and performance metrics across multiple platforms with beautiful visualizations.</p>
-                        <div class="project-tech">
-                            <span>React</span>
-                            <span>Chart.js</span>
-                            <span>Node.js</span>
-                            <span>API Integration</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 8 -->
-                <div class="project-card" data-category="webapp">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Weather App">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">Web App</span>
-                        <h3>Weather Application</h3>
-                        <p>A weather forecasting app with location-based predictions, 7-day forecast, weather alerts, and beautiful UI with dynamic backgrounds based on weather conditions.</p>
-                        <div class="project-tech">
-                            <span>JavaScript</span>
-                            <span>OpenWeather API</span>
-                            <span>CSS3</span>
-                            <span>Geolocation API</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 9 -->
-                <div class="project-card" data-category="api">
-                    <div class="project-image">
-                        <img src="Screenshot 2026-03-11 233114.png" alt="Chat API">
-                        <div class="project-overlay">
-                            <a href="#" class="overlay-btn"><i class="fas fa-external-link-alt"></i> Live Demo</a>
-                            <a href="#" class="overlay-btn"><i class="fab fa-github"></i> Source Code</a>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <span class="project-category">API</span>
-                        <h3>Real-time Chat API</h3>
-                        <p>A WebSocket-powered chat API supporting real-time messaging, online presence, typing indicators, and group chat functionality with Redis for caching.</p>
-                        <div class="project-tech">
-                            <span>Node.js</span>
-                            <span>Socket.io</span>
-                            <span>Redis</span>
-                            <span>MongoDB</span>
+                        <div class="project-links">
+                            <a href="#" target="_blank"><i class="fab fa-github"></i> Code</a>
+                            <a href="#" target="_blank"><i class="fas fa-external-link-alt"></i> Live</a>
                         </div>
                     </div>
                 </div>
             </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="projects.html" class="btn btn-primary">View All Projects</a>
+            </div>
         </div>
     </section>
+               
 
     <!-- Call to Action -->
     <section class="projects-cta">
@@ -275,6 +137,8 @@
             <a href="index.html#contact" class="btn btn-primary">Get In Touch</a>
         </div>
     </section>
+
+    
 
     <!-- Footer -->
     <footer class="footer">

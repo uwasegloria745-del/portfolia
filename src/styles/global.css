@@ -1,0 +1,11 @@
+@import "../../css/style.css";
+
+/* App-level tweaks */
+.app-loading{min-height:40vh;opacity:.7}
+
+/* The original vanilla JS creates these classes dynamically; keep them safe */
+.custom-cursor{display:none}
+
+/* Make sure main takes remaining space before footer */
+main{flex:1}
+
