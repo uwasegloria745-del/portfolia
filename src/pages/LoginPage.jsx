@@ -127,8 +127,7 @@ export default function LoginPage() {
 
           <div style={{ marginTop: 14, color: 'var(--text-light)' }}>
             <small>
-              Demo login: any non-empty credentials work. After login, you can later add a redirect to
-              <b> /admin</b>.
+              Demo login: any non-empty credentials work. You will be redirected to the admin dashboard.
             </small>
           </div>
         </form>

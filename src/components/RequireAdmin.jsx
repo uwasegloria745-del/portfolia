@@ -26,7 +26,7 @@ export default function RequireAdmin({ children }) {
   // Also handle cases where sessionStorage changes without remounting.
   const auth = useMemo(() => authorized || isAuthorized(), [authorized])
 
-  if (!auth) return <Navigate to="/admin" replace />
+  if (!auth) return <Navigate to="/login" replace />
 
   return children
 }

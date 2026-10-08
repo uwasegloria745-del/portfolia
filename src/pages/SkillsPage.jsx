@@ -1,4 +1,5 @@
 import React from 'react'
+import '../../css/skills.css'
 
 export default function SkillsPage() {
   return (

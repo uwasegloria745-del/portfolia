@@ -48,7 +48,7 @@ export default function HomePage() {
 
           <div className="hero-image">
             <div className="image-frame">
-              <img src="/profile.jpg" alt="Gloria UWASE - Full Stack Developer" loading="lazy" />
+              <img src="/Gloria.jpg" alt="Gloria UWASE - Full Stack Developer" loading="lazy" />
             </div>
           </div>
         </div>

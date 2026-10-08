@@ -10,17 +10,17 @@
 .skills-hero h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: var(--dark-color);
+    color: var(--light-color);
 }
 
 .skills-hero .subtitle {
     font-size: 1.2rem;
-    color: var(--text-light);
+    color: var(--light-color);
 }
 
 /* Main Skills Section */
 .skills-main {
-    padding: 60px 0;
+    color: var(--light-color);
     background: var(--white);
 }
 
@@ -30,7 +30,7 @@
 
 .category-title {
     font-size: 1.8rem;
-    color: var(--dark-color);
+    color: var(--light-color);
     margin-bottom: 2rem;
     display: flex;
     align-items: center;
@@ -81,7 +81,7 @@
 
 .skill-card h3 {
     font-size: 1.3rem;
-    color: var(--dark-color);
+    color: var(--light-color);
     margin-bottom: 0.5rem;
 }
 
