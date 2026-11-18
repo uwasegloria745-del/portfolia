@@ -522,44 +522,68 @@ window.addEventListener('scroll', () => {
 // FORM SUBMISSION
 // ============================================
 if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    let isSubmitting = false;
+
+    contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // Get form data
+
+        if (isSubmitting) return;
+
         const formData = new FormData(contactForm);
         const data = Object.fromEntries(formData.entries());
 
-        // Basic validation
         if (!data.name || !data.email || !data.subject || !data.message) {
-            showNotification('Please fill in all fields', 'error');
+            showNotification('Please fill in all fields.', 'error');
             return;
         }
-        
-        // Email validation
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(data.email)) {
-            showNotification('Please enter a valid email address', 'error');
+        if (!emailRegex.test(String(data.email).trim())) {
+            showNotification('Please enter a valid email address.', 'error');
             return;
         }
-        
-        // Save message to localStorage
-        const messages = JSON.parse(localStorage.getItem('portfolioMessages') || '[]');
-        messages.push({
-            id: Date.now(),
-            name: data.name,
-            email: data.email,
-            subject: data.subject,
-            message: data.message,
-            date: new Date().toISOString(),
-            read: false,
-            starred: false
-        });
-        localStorage.setItem('portfolioMessages', JSON.stringify(messages));
-        
-        // Simulate form submission (replace with actual API call)
-        console.log('Form submitted:', data);
-        showNotification('Thank you! Your message has been sent successfully.', 'success');
-        contactForm.reset();
+
+        const payload = {
+            name: String(data.name).trim(),
+            email: String(data.email).trim(),
+            subject: String(data.subject).trim(),
+            message: String(data.message).trim(),
+        };
+
+        isSubmitting = true;
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+        }
+
+        try {
+            const response = await fetch('http://localhost:3001/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Unable to send your message. Please try again.');
+            }
+
+            showNotification('Message sent successfully.', 'success');
+            contactForm.reset();
+        } catch (error) {
+            console.error('Contact form submission failed:', error);
+            showNotification(error.message || 'Unable to send your message. Please try again.', 'error');
+        } finally {
+            isSubmitting = false;
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Send Message';
+            }
+        }
     });
 }
 

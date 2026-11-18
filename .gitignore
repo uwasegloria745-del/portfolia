@@ -1,6 +1,8 @@
 # dependencies
 /node_modules
 /dist
+.env
+data/database.json
 
 # firebase
 .firebase/

@@ -47,6 +47,8 @@ const readMessagesEl = document.getElementById('readMessages');
 const newMessagesEl = document.getElementById('newMessages');
 const modal = document.getElementById('messageModal');
 const modalClose = document.querySelector('.modal-close');
+const replyComposer = document.getElementById('replyComposer');
+const replyMessageInput = document.getElementById('replyMessage');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -146,6 +148,8 @@ function viewMessage(id) {
     document.getElementById('modalEmail').textContent = message.email;
     document.getElementById('modalDate').textContent = new Date(message.date).toLocaleString();
     document.getElementById('modalBody').textContent = message.message;
+    replyComposer.hidden = true;
+    replyMessageInput.value = '';
 
     // Store current message ID for actions
     modal.dataset.messageId = id;
@@ -179,14 +183,33 @@ modal.addEventListener('click', (e) => {
     }
 });
 
-// Reply button
+// Prepare a reply to the sender in the user's email application.
 document.getElementById('replyBtn').addEventListener('click', () => {
     const messageId = parseInt(modal.dataset.messageId);
     const message = messages.find(m => m.id === messageId);
     
     if (message) {
-        window.location.href = `mailto:${message.email}?subject=Re: ${message.subject}`;
+        replyComposer.hidden = false;
+        replyMessageInput.focus();
     }
+});
+
+replyComposer.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const messageId = parseInt(modal.dataset.messageId);
+    const message = messages.find(m => m.id === messageId);
+    const reply = replyMessageInput.value.trim();
+
+    if (!message || !reply) return;
+
+    const subject = `Re: ${message.subject}`;
+    const mailtoUrl = `mailto:${message.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(reply)}`;
+    window.location.href = mailtoUrl;
+});
+
+document.getElementById('cancelReplyBtn').addEventListener('click', () => {
+    replyComposer.hidden = true;
+    replyMessageInput.value = '';
 });
 
 // Delete from modal

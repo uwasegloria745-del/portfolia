@@ -1,53 +1,82 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
-const storageKey = 'portfolioMessages'
 const ADMIN_SESSION_KEY = 'portfolioAdminSession'
-const ADMIN_ROLE = 'admin'
+const ADMIN_TOKEN_KEY = 'portfolioAdminToken'
 
-function getDefaultAdminCredentials() {
-  return { username: 'admin', password: 'Gloria@745123' }
-}
+async function fetchProtected(url, options = {}) {
+  const token = sessionStorage.getItem(ADMIN_TOKEN_KEY)
 
-function getAdminCredentials() {
-  const username = localStorage.getItem('portfolioAdminUsername')
-  const password = localStorage.getItem('portfolioAdminPassword')
-  const defaults = getDefaultAdminCredentials()
-  return {
-    username: username || defaults.username,
-    password: password || defaults.password,
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  })
+
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    throw new Error(data.error || 'Request failed.')
   }
-}
 
-function isAuthorized() {
-  try {
-    return sessionStorage.getItem(ADMIN_SESSION_KEY) === ADMIN_ROLE
-  } catch {
-    return false
-  }
-}
-
-function saveMessages(messages) {
-  localStorage.setItem(storageKey, JSON.stringify(messages))
+  return data
 }
 
 export default function AdminDashboardPage() {
   const [messages, setMessages] = useState([])
   const [authorized, setAuthorized] = useState(false)
-  const [login, setLogin] = useState({ username: '', password: '' })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
 
   useEffect(() => {
-    const auth = isAuthorized()
-    setAuthorized(auth)
-    const stored = JSON.parse(localStorage.getItem(storageKey) || '[]')
-    setMessages(stored)
+    async function loadAdminData() {
+      const token = sessionStorage.getItem(ADMIN_TOKEN_KEY)
+      if (!token) {
+        setAuthorized(false)
+        setLoading(false)
+        return
+      }
+
+      try {
+        const session = await fetchProtected('http://localhost:3001/api/admin/session')
+        if (session.authenticated) {
+          sessionStorage.setItem(ADMIN_SESSION_KEY, 'admin')
+          setAuthorized(true)
+          const conversations = await fetchProtected('http://localhost:3001/api/conversations')
+          setMessages(
+            conversations.map((conversation) => ({
+              id: conversation.id,
+              name: conversation.visitorName,
+              email: conversation.visitorEmail,
+              subject: conversation.subject,
+              message: conversation.latestMessage,
+              date: conversation.updatedAt,
+              read: conversation.unreadCount === 0,
+              starred: false,
+            }))
+          )
+        } else {
+          setAuthorized(false)
+        }
+      } catch (err) {
+        console.error('Admin session blocked:', err)
+        setAuthorized(false)
+        sessionStorage.removeItem(ADMIN_SESSION_KEY)
+        sessionStorage.removeItem(ADMIN_TOKEN_KEY)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadAdminData()
   }, [])
 
   const logout = () => {
-    try {
-      sessionStorage.removeItem(ADMIN_SESSION_KEY)
-    } catch {}
+    sessionStorage.removeItem(ADMIN_SESSION_KEY)
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY)
     setAuthorized(false)
   }
 
@@ -99,11 +128,6 @@ export default function AdminDashboardPage() {
               </div>
               <div className="cell">
                 <div className="subject">{msg.subject}</div>
-                {msg.starred ? (
-                  <span className="star-pill" title="Starred">
-                    <i className="fas fa-star" /> Starred
-                  </span>
-                ) : null}
               </div>
               <div className="cell">
                 <span className="date">{new Date(msg.date).toLocaleString()}</span>
@@ -115,33 +139,31 @@ export default function AdminDashboardPage() {
                 <button
                   className="btn btn-secondary btn-small"
                   type="button"
-                  onClick={() => {
-                    const next = messages.map((m) => (m.id === msg.id ? { ...m, read: !m.read } : m))
-                    setMessages(next)
-                    saveMessages(next)
+                  onClick={async () => {
+                    try {
+                      const nextValue = !msg.read
+                      await fetchProtected(`http://localhost:3001/api/conversations/${msg.id}/read`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ read: nextValue }),
+                      })
+                      setMessages((current) => current.map((item) => (item.id === msg.id ? { ...item, read: nextValue } : item)))
+                    } catch (err) {
+                      setError(err.message || 'Unable to update message status.')
+                    }
                   }}
                 >
                   <i className="fas fa-eye" /> {msg.read ? 'Mark Unread' : 'Mark Read'}
                 </button>
                 <button
-                  className="btn btn-secondary btn-small"
-                  type="button"
-                  onClick={() => {
-                    const next = messages.map((m) => (m.id === msg.id ? { ...m, starred: !m.starred } : m))
-                    setMessages(next)
-                    saveMessages(next)
-                  }}
-                >
-                  <i className="fas fa-star" /> {msg.starred ? 'Unstar' : 'Star'}
-                </button>
-                <button
                   className="btn btn-danger btn-small"
                   type="button"
-                  onClick={() => {
-                    if (!confirm('Delete this message?')) return
-                    const next = messages.filter((m) => m.id !== msg.id)
-                    setMessages(next)
-                    saveMessages(next)
+                  onClick={async () => {
+                    try {
+                      await fetchProtected(`http://localhost:3001/api/messages/${msg.id}`, { method: 'DELETE' })
+                      setMessages((current) => current.filter((item) => item.id !== msg.id))
+                    } catch (err) {
+                      setError(err.message || 'Unable to delete this message.')
+                    }
                   }}
                 >
                   <i className="fas fa-trash" /> Delete
@@ -155,78 +177,32 @@ export default function AdminDashboardPage() {
   }
 
   if (!authorized) {
-    const creds = getDefaultAdminCredentials()
     return (
       <section className="admin-hero" id="main-content">
         <div className="container">
           <h1>
             <i className="fas fa-user-shield" /> Admin Dashboard
           </h1>
-          <p className="subtitle">Manage contact messages stored in your browser (localStorage).</p>
-
+          <p className="subtitle">Secure admin area protected by server-side authentication.</p>
           <div className="admin-login" style={{ marginTop: 18 }}>
             <div className="admin-login-inner">
               <h2>
                 <i className="fas fa-user-lock" /> Admin Login
               </h2>
               <p className="subtitle">Enter your admin credentials to manage messages.</p>
-
-              <form
-                className="admin-login-form"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  const { username, password } = login
-                  const expected = getAdminCredentials()
-                  if (username === expected.username && password === expected.password) {
-                    try {
-                      sessionStorage.setItem(ADMIN_SESSION_KEY, ADMIN_ROLE)
-                    } catch {}
-                    setAuthorized(true)
-                  } else {
-                    alert('Invalid username or password.')
-                  }
-                }}
-              >
-                <div className="filter-group" style={{ margin: 0 }}>
-                  <label htmlFor="adminUsername">Username</label>
-                  <input
-                    id="adminUsername"
-                    name="username"
-                    type="text"
-                    placeholder="admin"
-                    value={login.username}
-                    onChange={(e) => setLogin((s) => ({ ...s, username: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="filter-group" style={{ marginTop: '0.9rem' }}>
-                  <label htmlFor="adminPassword">Password</label>
-                  <input
-                    id="adminPassword"
-                    name="password"
-                    type="password"
-                    placeholder="admin123"
-                    value={login.password}
-                    onChange={(e) => setLogin((s) => ({ ...s, password: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="admin-actions" style={{ justifyContent: 'flex-start', marginTop: '1rem' }}>
-                  <button className="btn btn-primary" type="submit">
-                    <i className="fas fa-right-to-bracket" /> Login
-                  </button>
-                </div>
-
-                <p className="admin-login-note" style={{ marginTop: '0.9rem' }}>
-                  Demo credentials: <strong>{creds.username}</strong> / <strong>{creds.password}</strong>
-                </p>
-              </form>
+              <div className="admin-login-note" style={{ marginBottom: '1rem', color: '#fff' }}>
+                Use the same username and password configured for the server.
+              </div>
+              {error ? <div style={{ marginBottom: 14, color: '#ffb3b3' }}>{error}</div> : null}
             </div>
           </div>
         </div>
       </section>
     )
+  }
+
+  if (loading) {
+    return <div className="app-loading" />
   }
 
   return (
@@ -237,12 +213,14 @@ export default function AdminDashboardPage() {
             <h1>
               <i className="fas fa-user-shield" /> Admin Dashboard
             </h1>
-            <p className="subtitle">Manage contact messages stored in your browser (localStorage).</p>
+            <p className="subtitle">Manage portfolio conversations securely.</p>
           </div>
           <div className="admin-hint">
-            <i className="fas fa-lock" /> <span>Authentication + authorization (front-end demo only).</span>
+            <i className="fas fa-lock" /> <span>Authentication + authorization enabled.</span>
           </div>
         </div>
+
+        {error ? <div style={{ marginBottom: 18, color: '#ffb3b3' }}>{error}</div> : null}
 
         <div className="admin-stats">
           <div className="stat-card">
@@ -274,11 +252,12 @@ export default function AdminDashboardPage() {
           </div>
           <div className="stat-card">
             <div className="stat-icon">
-              <i className="fas fa-star" />
+              <i className="fas fa-sign-out-alt" />
             </div>
             <div>
-              <h3>{stats.starred}</h3>
-              <p>Starred</p>
+              <button className="btn btn-secondary" type="button" onClick={logout}>
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -290,7 +269,6 @@ export default function AdminDashboardPage() {
               <option value="all">All</option>
               <option value="unread">Unread</option>
               <option value="read">Read</option>
-              <option value="starred">Starred</option>
             </select>
           </div>
 
@@ -303,39 +281,6 @@ export default function AdminDashboardPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
-          </div>
-
-          <div className="admin-actions">
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={() => {
-                const next = messages.map((m) => ({ ...m, read: true }))
-                setMessages(next)
-                saveMessages(next)
-              }}
-            >
-              <i className="fas fa-check-double" /> Mark all as read
-            </button>
-            <button
-              className="btn btn-danger"
-              type="button"
-              onClick={() => {
-                if (!confirm('Clear ALL messages from localStorage? This cannot be undone.')) return
-                setMessages([])
-                saveMessages([])
-              }}
-            >
-              <i className="fas fa-trash" /> Clear all
-            </button>
-
-            <button
-              className="btn btn-secondary"
-              type="button"
-              onClick={logout}
-            >
-              <i className="fas fa-sign-out-alt" /> Logout
-            </button>
           </div>
         </div>
 

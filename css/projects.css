@@ -10,7 +10,7 @@
 .projects-hero h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
-    color: var(--dark-color);
+    color: var(--light-color);
 }
 
 .projects-hero .subtitle {
@@ -163,7 +163,7 @@
 
 .project-content h3 {
     font-size: 1.4rem;
-    color: var(--dark-color);
+    color: var(--light-color);
     margin-bottom: 0.8rem;
 }
 

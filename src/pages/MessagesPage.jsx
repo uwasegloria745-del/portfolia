@@ -25,6 +25,8 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalId, setModalId] = useState(null)
+  const [replyText, setReplyText] = useState('')
+  const [replying, setReplying] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -48,6 +50,19 @@ export default function MessagesPage() {
   }, [messages])
 
   const active = useMemo(() => messages.find((m) => m.id === modalId), [messages, modalId])
+
+  function openReply() {
+    setReplyText('')
+    setReplying(true)
+  }
+
+  function sendReply(event) {
+    event.preventDefault()
+    if (!active || !replyText.trim()) return
+
+    const subject = `Re: ${active.subject}`
+    window.location.href = `mailto:${active.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(replyText.trim())}`
+  }
 
   const renderList = () => {
     if (loading) {
@@ -187,16 +202,38 @@ export default function MessagesPage() {
               <div className="message-body" style={{ whiteSpace: 'pre-wrap' }}>
                 {active.message}
               </div>
+              {replying && (
+                <form onSubmit={sendReply} style={{ marginTop: 20 }}>
+                  <label htmlFor="replyMessage" style={{ display: 'block', marginBottom: 8 }}>
+                    Your reply to {active.name}
+                  </label>
+                  <textarea
+                    id="replyMessage"
+                    value={replyText}
+                    onChange={(event) => setReplyText(event.target.value)}
+                    placeholder="Write your reply..."
+                    required
+                    rows={5}
+                    style={{ width: '100%', padding: 12, borderRadius: 8, font: 'inherit', resize: 'vertical' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
+                    <button className="btn btn-secondary" type="button" onClick={() => setReplying(false)}>
+                      Cancel
+                    </button>
+                    <button className="btn btn-primary" type="submit">
+                      <i className="fas fa-paper-plane" /> Open Email App
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
             <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
               <button
                 className="btn btn-secondary"
                 type="button"
-                onClick={() => {
-                  window.location.href = `mailto:${active.email}?subject=Re: ${active.subject}`
-                }}
+                onClick={openReply}
               >
-                <i className="fas fa-reply" /> Reply
+                <i className="fas fa-reply" /> Write Reply
               </button>
               <button
                 className="btn btn-danger"
@@ -216,4 +253,3 @@ export default function MessagesPage() {
     </section>
   )
 }
-

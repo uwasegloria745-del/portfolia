@@ -1,6 +1,8 @@
 // Admin Dashboard JavaScript
 
-let messages = JSON.parse(localStorage.getItem('portfolioMessages')) || [];
+const ADMIN_SESSION_KEY = 'portfolioAdminSession';
+const ADMIN_TOKEN_KEY = 'portfolioAdminToken';
+let messages = [];
 
 // DOM Elements
 const messagesContainer = document.getElementById('messagesContainer');
@@ -16,197 +18,103 @@ const starredMessagesEl = document.getElementById('starredMessages');
 
 const adminFilter = document.getElementById('adminFilter');
 const adminSearch = document.getElementById('adminSearch');
-
 const markAllReadBtn = document.getElementById('markAllReadBtn');
 const clearAllBtn = document.getElementById('clearAllBtn');
 
-// ===== Auth + Authorization (front-end demo only) =====
-const ADMIN_SESSION_KEY = 'portfolioAdminSession';
-const ADMIN_ROLE = 'admin';
-
-function getDefaultAdminCredentials() {
-    return {
-        username: 'admin',
-        password: 'Gloria@745123'
-    };
-}
-
-function getAdminCredentials() {
-    const username = localStorage.getItem('portfolioAdminUsername');
-    const password = localStorage.getItem('portfolioAdminPassword');
-
-    const defaults = getDefaultAdminCredentials();
-    return {
-        username: username || defaults.username,
-        password: password || defaults.password
-    };
+function getAdminToken() {
+    try {
+        return sessionStorage.getItem(ADMIN_TOKEN_KEY) || '';
+    } catch {
+        return '';
+    }
 }
 
 function isAuthorized() {
     try {
-        return sessionStorage.getItem(ADMIN_SESSION_KEY) === ADMIN_ROLE;
+        return Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
     } catch {
         return false;
     }
 }
 
-function requireAuthorization() {
-    // If already authorized, allow.
-    if (isAuthorized()) return true;
+async function fetchAdmin(url, options = {}) {
+    const token = getAdminToken();
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...(options.headers || {}),
+        },
+        credentials: 'include',
+    });
 
-    // If no login UI exists, block rendering.
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Request failed.');
+    }
+
+    return data;
+}
+
+function requireAuthorization() {
     const loginCard = document.getElementById('adminLoginCard');
-    if (!loginCard) {
-        showNotification('Not authorized. Login required.', 'error');
+    if (!isAuthorized()) {
+        if (loginCard) loginCard.style.display = 'block';
         return false;
     }
 
-    // Show login card
-    loginCard.style.display = 'block';
-    return false;
+    if (loginCard) loginCard.style.display = 'none';
+    return true;
 }
 
 function logoutAdmin() {
     try {
+        sessionStorage.removeItem(ADMIN_TOKEN_KEY);
         sessionStorage.removeItem(ADMIN_SESSION_KEY);
     } catch {}
     location.reload();
 }
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    // If login form exists, wire it.
-    const loginForm = document.getElementById('adminLoginForm');
-    const logoutBtn = document.getElementById('adminLogoutBtn');
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', logoutAdmin);
+async function loadMessages() {
+    if (!isAuthorized()) {
+        requireAuthorization();
+        return;
     }
 
-    // Show/hide login/logout based on auth state
-    const applyAuthUI = () => {
-        const loginCard = document.getElementById('adminLoginCard');
-        const authorizedNow = isAuthorized();
-        if (loginCard) loginCard.style.display = authorizedNow ? 'none' : 'block';
-        if (logoutBtn) logoutBtn.style.display = authorizedNow ? 'inline-flex' : 'none';
-    };
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const formData = new FormData(loginForm);
-            const username = String(formData.get('username') || '').trim();
-            const password = String(formData.get('password') || '');
-
-            const creds = getAdminCredentials();
-            if (username === creds.username && password === creds.password) {
-                try {
-                    sessionStorage.setItem(ADMIN_SESSION_KEY, ADMIN_ROLE);
-                } catch {}
-
-                applyAuthUI();
-
-                // Continue with dashboard rendering
-                loadAndRender();
-
-                // Re-bind controls (since they are created after render)
-                if (adminFilter) adminFilter.addEventListener('change', () => render());
-                if (adminSearch) {
-                    let t;
-                    adminSearch.addEventListener('input', () => {
-                        clearTimeout(t);
-                        t = setTimeout(() => render(), 150);
-                    });
-                }
-
-                if (markAllReadBtn) {
-                    markAllReadBtn.addEventListener('click', () => {
-                        messages = messages.map(m => ({ ...m, read: true }));
-                        saveMessages();
-                        render();
-                        showNotification('All messages marked as read', 'success');
-                    });
-                }
-
-                if (clearAllBtn) {
-                    clearAllBtn.addEventListener('click', () => {
-                        const ok = confirm('Clear ALL messages from localStorage? This cannot be undone.');
-                        if (!ok) return;
-                        messages = [];
-                        saveMessages();
-                        render();
-                        showNotification('All messages cleared', 'success');
-                    });
-                }
-
-                showNotification('Welcome admin!', 'success');
-            } else {
-                showNotification('Invalid username or password.', 'error');
-            }
-        });
-    }
-
-    // If not authorized yet, show login and stop.
-    const authorized = requireAuthorization();
-    applyAuthUI();
-    if (!authorized) return;
-
-    // Render dashboard immediately if authorized.
-    loadAndRender();
-
-    if (adminFilter) {
-        adminFilter.addEventListener('change', () => render());
-    }
-    if (adminSearch) {
-        let t;
-        adminSearch.addEventListener('input', () => {
-            clearTimeout(t);
-            t = setTimeout(() => render(), 150);
-        });
-    }
-
-    if (markAllReadBtn) {
-        markAllReadBtn.addEventListener('click', () => {
-            messages = messages.map(m => ({ ...m, read: true }));
-            saveMessages();
-            render();
-            showNotification('All messages marked as read', 'success');
-        });
-    }
-
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', () => {
-            const ok = confirm('Clear ALL messages from localStorage? This cannot be undone.');
-            if (!ok) return;
-            messages = [];
-            saveMessages();
-            render();
-            showNotification('All messages cleared', 'success');
-        });
-    }
-});
-
-
-function saveMessages() {
-    localStorage.setItem('portfolioMessages', JSON.stringify(messages));
-}
-
-function loadAndRender() {
-    // Brief loading state
     if (loadingState) loadingState.style.display = 'flex';
     if (messageTable) messageTable.style.display = 'none';
 
-    setTimeout(() => {
+    try {
+        const conversations = await fetchAdmin('http://localhost:3001/api/conversations');
+        messages = conversations.map((conversation) => ({
+            id: conversation.id,
+            name: conversation.visitorName,
+            email: conversation.visitorEmail,
+            subject: conversation.subject,
+            message: conversation.latestMessage,
+            date: conversation.updatedAt,
+            read: conversation.unreadCount === 0,
+            starred: false,
+            conversationId: conversation.id,
+            unreadCount: conversation.unreadCount,
+            latestMessage: conversation.latestMessage,
+        }));
         render();
-    }, 400);
+    } catch (error) {
+        console.error('Failed to load admin messages:', error);
+        showNotification(error.message || 'Unable to load messages.', 'error');
+    } finally {
+        if (loadingState) loadingState.style.display = 'none';
+    }
 }
 
 function updateStats() {
     const total = messages.length;
-    const read = messages.filter(m => m.read).length;
+    const read = messages.filter((m) => m.read).length;
     const unread = total - read;
-    const starred = messages.filter(m => m.starred).length;
+    const starred = messages.filter((m) => m.starred).length;
 
     if (totalMessagesEl) totalMessagesEl.textContent = total;
     if (readMessagesEl) readMessagesEl.textContent = read;
@@ -218,27 +126,24 @@ function getFilteredMessages() {
     let filtered = [...messages];
 
     const filterVal = adminFilter ? adminFilter.value : 'all';
-    if (filterVal === 'unread') filtered = filtered.filter(m => !m.read);
-    if (filterVal === 'read') filtered = filtered.filter(m => m.read);
-    if (filterVal === 'starred') filtered = filtered.filter(m => m.starred);
+    if (filterVal === 'unread') filtered = filtered.filter((m) => !m.read);
+    if (filterVal === 'read') filtered = filtered.filter((m) => m.read);
+    if (filterVal === 'starred') filtered = filtered.filter((m) => m.starred);
 
     const q = (adminSearch ? adminSearch.value : '').trim().toLowerCase();
     if (q) {
-        filtered = filtered.filter(m => {
+        filtered = filtered.filter((m) => {
             const hay = `${m.name} ${m.email} ${m.subject} ${m.message}`.toLowerCase();
             return hay.includes(q);
         });
     }
 
-    // newest first
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
     return filtered;
 }
 
 function render() {
     updateStats();
-
     const filtered = getFilteredMessages();
 
     if (!messagesContainer) return;
@@ -257,15 +162,13 @@ function render() {
 
     if (filtered.length === 0) {
         if (messageRows) {
-            messageRows.innerHTML = `
-                <div class="message-table-empty">No messages match your filter/search.</div>
-            `;
+            messageRows.innerHTML = '<div class="message-table-empty">No messages match your filter/search.</div>';
         }
         return;
     }
 
     if (messageRows) {
-        messageRows.innerHTML = filtered.map(msg => {
+        messageRows.innerHTML = filtered.map((msg) => {
             const dateStr = formatDateTime(msg.date);
             const statusLabel = msg.read ? 'Read' : 'Unread';
             const statusClass = msg.read ? 'status-read' : 'status-unread';
@@ -278,7 +181,7 @@ function render() {
                     </div>
                     <div class="cell">
                         <div class="subject">${escapeHtml(msg.subject)}</div>
-                        ${msg.starred ? `<span class="star-pill" title="Starred"><i class="fas fa-star"></i> Starred</span>` : ''}
+                        ${msg.starred ? '<span class="star-pill" title="Starred"><i class="fas fa-star"></i> Starred</span>' : ''}
                     </div>
                     <div class="cell">
                         <span class="date">${escapeHtml(dateStr)}</span>
@@ -290,9 +193,6 @@ function render() {
                         <button class="btn btn-secondary btn-small" type="button" data-action="toggleRead" data-id="${msg.id}">
                             <i class="fas fa-eye"></i> ${msg.read ? 'Mark Unread' : 'Mark Read'}
                         </button>
-                        <button class="btn btn-secondary btn-small" type="button" data-action="toggleStar" data-id="${msg.id}">
-                            <i class="fas fa-star"></i> ${msg.starred ? 'Unstar' : 'Star'}
-                        </button>
                         <button class="btn btn-danger btn-small" type="button" data-action="delete" data-id="${msg.id}">
                             <i class="fas fa-trash"></i> Delete
                         </button>
@@ -303,38 +203,43 @@ function render() {
     }
 }
 
-// Table actions (event delegation)
 if (messageRows) {
-    messageRows.addEventListener('click', (e) => {
+    messageRows.addEventListener('click', async (e) => {
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
 
         const action = btn.dataset.action;
-        const id = Number(btn.dataset.id);
-        if (!action || Number.isNaN(id)) return;
+        const id = btn.dataset.id;
+        if (!action || !id) return;
+
+        const item = messages.find((message) => message.id === id);
+        if (!item) return;
 
         if (action === 'toggleRead') {
-            messages = messages.map(m => m.id === id ? { ...m, read: !m.read } : m);
-            saveMessages();
-            render();
-            return;
-        }
-
-        if (action === 'toggleStar') {
-            messages = messages.map(m => m.id === id ? { ...m, starred: !m.starred } : m);
-            saveMessages();
-            render();
+            try {
+                await fetchAdmin(`http://localhost:3001/api/conversations/${id}/read`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ read: !item.read }),
+                });
+                item.read = !item.read;
+                render();
+            } catch (error) {
+                showNotification(error.message || 'Unable to update message status.', 'error');
+            }
             return;
         }
 
         if (action === 'delete') {
-            const ok = confirm('Delete this message?');
+            const ok = confirm('Delete this conversation?');
             if (!ok) return;
-            messages = messages.filter(m => m.id !== id);
-            saveMessages();
-            render();
-            showNotification('Message deleted', 'success');
-            return;
+            try {
+                await fetchAdmin(`http://localhost:3001/api/messages/${id}`, { method: 'DELETE' });
+                messages = messages.filter((message) => message.id !== id);
+                render();
+                showNotification('Conversation deleted.', 'success');
+            } catch (error) {
+                showNotification(error.message || 'Unable to delete conversation.', 'error');
+            }
         }
     });
 }
@@ -342,33 +247,30 @@ if (messageRows) {
 function formatDateTime(dateString) {
     const d = new Date(dateString);
     if (Number.isNaN(d.getTime())) return String(dateString || '');
-
     return d.toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
     });
 }
 
 function escapeHtml(str) {
     return String(str ?? '')
         .replaceAll('&', '&amp;')
-        .replaceAll('<', '<')
-        .replaceAll('>', '>')
-        .replaceAll('"', '"')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
 }
 
 function showNotification(message, type = 'info') {
-    // Remove existing notification if any
     const existing = document.querySelector('.admin-notification');
     if (existing) existing.remove();
 
     const notification = document.createElement('div');
     notification.className = `admin-notification notification notification-${type}`;
-
     notification.style.cssText = `
         position: fixed;
         top: 100px;
@@ -402,7 +304,6 @@ function showNotification(message, type = 'info') {
     `;
 
     notification.querySelector('.notification-close').addEventListener('click', () => notification.remove());
-
     document.body.appendChild(notification);
 
     setTimeout(() => {
@@ -411,10 +312,107 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        // no modal here; keep for future parity
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('adminLoginForm');
+    const logoutBtn = document.getElementById('adminLogoutBtn');
+    const loginCard = document.getElementById('adminLoginCard');
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await fetchAdmin('http://localhost:3001/api/admin/logout', { method: 'POST' });
+            } catch {
+                // Continue logout even if the server rejects.
+            }
+            logoutAdmin();
+        });
+    }
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(loginForm);
+            const username = String(formData.get('username') || '').trim();
+            const password = String(formData.get('password') || '').trim();
+
+            if (!username || !password) {
+                showNotification('Please enter both username and password.', 'error');
+                return;
+            }
+
+            try {
+                const result = await fetch('http://localhost:3001/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include',
+                });
+
+                const data = await result.json().catch(() => ({}));
+                if (!result.ok) {
+                    throw new Error(data.error || 'Invalid username or password.');
+                }
+
+                sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
+                sessionStorage.setItem(ADMIN_SESSION_KEY, 'admin');
+                if (loginCard) loginCard.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+                showNotification('Welcome admin!', 'success');
+                await loadMessages();
+            } catch (error) {
+                console.error('Admin login failed:', error);
+                showNotification(error.message || 'Unable to log in.', 'error');
+            }
+        });
+    }
+
+    if (adminFilter) {
+        adminFilter.addEventListener('change', render);
+    }
+
+    if (adminSearch) {
+        let timer;
+        adminSearch.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(render, 150);
+        });
+    }
+
+    if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', async () => {
+            if (!messages.length) return;
+            try {
+                await Promise.all(messages.map((message) => fetchAdmin(`http://localhost:3001/api/conversations/${message.id}/read`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ read: true }),
+                })));
+                messages = messages.map((message) => ({ ...message, read: true }));
+                render();
+                showNotification('All messages marked as read.', 'success');
+            } catch (error) {
+                showNotification(error.message || 'Unable to mark messages as read.', 'error');
+            }
+        });
+    }
+
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', async () => {
+            const ok = confirm('Clear all messages? This cannot be undone.');
+            if (!ok || !messages.length) return;
+            try {
+                await Promise.all(messages.map((message) => fetchAdmin(`http://localhost:3001/api/messages/${message.id}`, { method: 'DELETE' })));
+                messages = [];
+                render();
+                showNotification('All messages cleared.', 'success');
+            } catch (error) {
+                showNotification(error.message || 'Unable to clear messages.', 'error');
+            }
+        });
+    }
+
+    if (requireAuthorization()) {
+        if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+        loadMessages();
     }
 });
 

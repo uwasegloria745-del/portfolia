@@ -376,7 +376,7 @@ body.light-theme .navbar {
 }
 
 body.light-theme .hero {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%), url('../Gloria.jpg');
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%);
 }
 
 /* Hero Section */
@@ -385,11 +385,7 @@ body.light-theme .hero {
     display: flex;
     align-items: center;
     padding-top: 80px;
-    background: linear-gradient(135deg, rgba(21, 21, 21, 0.88) 0%, rgba(30, 30, 30, 0.78) 100%), url('../Gloria.jpg');
-    background-size: 52% auto;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background: linear-gradient(135deg, rgba(21, 21, 21, 0.88) 0%, rgba(30, 30, 30, 0.78) 100%);
     position: relative;
     overflow: hidden;
 }

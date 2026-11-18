@@ -113,10 +113,20 @@
                 <div class="message-body" id="modalBody">
                     Message content will appear here...
                 </div>
+                <form id="replyComposer" class="reply-composer" hidden>
+                    <label for="replyMessage">Your reply</label>
+                    <textarea id="replyMessage" rows="5" required placeholder="Write your reply to the sender..."></textarea>
+                    <div class="reply-composer-actions">
+                        <button class="btn btn-secondary" type="button" id="cancelReplyBtn">Cancel</button>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-paper-plane"></i> Open Email App
+                        </button>
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="replyBtn">
-                    <i class="fas fa-reply"></i> Reply
+                    <i class="fas fa-reply"></i> Write Reply
                 </button>
                 <button class="btn btn-danger" id="deleteBtn">
                     <i class="fas fa-trash"></i> Delete

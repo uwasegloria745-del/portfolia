@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run dev",
+    "backend": "node server.js",
     "dev": "node node_modules/vite/bin/vite.js",
     "build": "node node_modules/vite/bin/vite.js build",
     "preview": "node node_modules/vite/bin/vite.js preview",
@@ -19,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/USERNAME/REPO.git"
+  "url": "git+https://github.com/USERNAME/REPO.git"
   },
   "bugs": {
     "url": "https://github.com/USERNAME/REPO/issues"

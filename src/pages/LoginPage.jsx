@@ -2,18 +2,17 @@ import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const ADMIN_SESSION_KEY = 'portfolioAdminSession'
-const ADMIN_ROLE = 'admin'
+const ADMIN_TOKEN_KEY = 'portfolioAdminToken'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [values, setValues] = useState({ email: '', password: '' })
+  const [values, setValues] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-
   const canSubmit = useMemo(() => {
-    return values.email.trim().length > 0 && values.password.trim().length > 0 && !loading
-  }, [values.email, values.password, loading])
+    return values.username.trim().length > 0 && values.password.trim().length > 0 && !loading
+  }, [values.username, values.password, loading])
 
   function onChange(e) {
     const { name, value } = e.target
@@ -25,34 +24,37 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
 
-    // Demo-only login: accept any non-empty credentials.
-    if (!values.email.trim() || !values.password.trim()) {
-      setError('Please enter your email and password.')
+    if (!values.username.trim() || !values.password.trim()) {
+      setError('Please enter your username and password.')
       return
     }
 
     setLoading(true)
     try {
-      await new Promise((r) => setTimeout(r, 600))
-      localStorage.setItem(
-        'portfolioAuth',
-        JSON.stringify({ email: values.email.trim(), at: Date.now() })
-      )
+      const response = await fetch('http://localhost:3001/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: values.username.trim(),
+          password: values.password.trim(),
+        }),
+      })
 
-      // Enable admin dashboard access after login (demo-only)
-      try {
-        sessionStorage.setItem(ADMIN_SESSION_KEY, ADMIN_ROLE)
-      } catch {}
+      const data = await response.json().catch(() => ({}))
 
-      alert('Logged in successfully!')
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed. Please try again.')
+      }
+
+      sessionStorage.setItem(ADMIN_SESSION_KEY, 'admin')
+      sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token)
       navigate('/admin', { replace: true })
-    } catch (e) {
-      setError('Login failed. Please try again.')
+    } catch (err) {
+      setError(err.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
   }
-
 
   return (
     <div className="container" style={{ padding: '100px 20px' }}>
@@ -69,7 +71,7 @@ export default function LoginPage() {
         }}
       >
         <h2 className="section-title" style={{ marginBottom: 20, fontSize: '2rem' }}>
-          Login
+          Admin Login
         </h2>
 
         <form onSubmit={onSubmit} className="contact-form" style={{ boxShadow: 'none' }}>
@@ -90,16 +92,16 @@ export default function LoginPage() {
           ) : null}
 
           <div className="form-group">
-            <label htmlFor="loginEmail" className="sr-only">
-              Email
+            <label htmlFor="loginUsername" className="sr-only">
+              Username
             </label>
             <input
-              id="loginEmail"
-              name="email"
-              type="email"
-              value={values.email}
+              id="loginUsername"
+              name="username"
+              type="text"
+              value={values.username}
               onChange={onChange}
-              placeholder="Email"
+              placeholder="Username"
               required
               aria-required="true"
             />
@@ -124,12 +126,6 @@ export default function LoginPage() {
           <button className="btn btn-primary" type="submit" disabled={!canSubmit}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
-
-          <div style={{ marginTop: 14, color: 'var(--text-light)' }}>
-            <small>
-              Demo login: any non-empty credentials work. You will be redirected to the admin dashboard.
-            </small>
-          </div>
         </form>
       </div>
     </div>
